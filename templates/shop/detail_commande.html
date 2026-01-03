@@ -1,0 +1,199 @@
+
+<!-- ========== detail_commande.html - Détail d'une commande ========== -->
+{% extends 'base.html' %}
+
+{% block title %}Commande #{{ commande.numero_commande }} - SahelVert{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="/mes-commandes" class="text-decoration-none text-muted mb-2 d-block">
+                <i class="bi bi-arrow-left"></i> Retour à mes commandes
+            </a>
+            <h1 class="mb-0">Commande #{{ commande.numero_commande }}</h1>
+        </div>
+        <div class="text-end">
+            {% if commande.statut == 'en_attente' %}
+            <span class="badge bg-warning text-dark fs-5">En attente</span>
+            {% elif commande.statut == 'confirmee' %}
+            <span class="badge bg-info fs-5">Confirmée</span>
+            {% elif commande.statut == 'en_preparation' %}
+            <span class="badge bg-primary fs-5">En préparation</span>
+            {% elif commande.statut == 'en_livraison' %}
+            <span class="badge bg-primary fs-5">En livraison</span>
+            {% elif commande.statut == 'livree' %}
+            <span class="badge bg-success fs-5">Livrée</span>
+            {% elif commande.statut == 'annulee' %}
+            <span class="badge bg-danger fs-5">Annulée</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Détails de la commande -->
+        <div class="col-lg-8">
+            <!-- Informations générales -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle"></i> Informations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Date de commande:</strong><br>
+                            <span class="text-muted">
+                                {{ commande.date_commande|date:"d/m/Y à H:i" }}
+                            </span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Mode de paiement:</strong><br>
+                            <span class="text-muted">
+                                {% if commande.mode_paiement == 'cash' %}
+                                Paiement à la livraison
+                                {% elif commande.mode_paiement == 'orange_money' %}
+                                Orange Money
+                                {% elif commande.mode_paiement == 'moov_money' %}
+                                Moov Money
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Adresse de livraison:</strong><br>
+                            <span class="text-muted">
+                                {{ commande.adresse_livraison }}<br>
+                                {{ commande.quartier_livraison }}, {{ commande.ville_livraison }}
+                            </span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Contact:</strong><br>
+                            <span class="text-muted">
+                                {{ commande.telephone_livraison }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produits -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-box-seam"></i> Produits
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produit</th>
+                                    <th>Prix unitaire</th>
+                                    <th>Quantité</th>
+                                    <th class="text-end">Sous-total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in commande.items.all %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ item.nom_produit }}</strong>
+                                    </td>
+                                    <td>{{ item.prix_unitaire }} FCFA</td>
+                                    <td>{{ item.quantite }} {{ item.unite }}</td>
+                                    <td class="text-end">
+                                        <strong>{{ item.sous_total }} FCFA</strong>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Sous-total:</strong></td>
+                                    <td class="text-end">{{ commande.sous_total }} FCFA</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Frais de livraison:</strong></td>
+                                    <td class="text-end">{{ commande.frais_livraison }} FCFA</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                    <td class="text-end">
+                                        <strong class="fs-5">{{ commande.total }} FCFA</strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            {% if commande.notes_client %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-chat-left-text"></i> Notes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ commande.notes_client }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Actions -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if commande.statut in 'en_attente,confirmee' %}
+                        <form method="POST" action="/annuler-commande/{{ commande.id }}/">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="btn btn-danger w-100 rounded-pill"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande?')">
+                                <i class="bi bi-x-circle"></i> Annuler la commande
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        <button class="btn btn-outline-secondary rounded-pill" onclick="window.print()">
+                            <i class="bi bi-printer"></i> Imprimer
+                        </button>
+                        
+                        <a href="/mes-commandes" class="btn btn-outline-primary rounded-pill">
+                            <i class="bi bi-list-ul"></i> Mes commandes
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Besoin d'aide -->
+            <div class="card shadow-sm border-success">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="bi bi-headset text-success"></i> Besoin d'aide?
+                    </h6>
+                    <p class="small text-muted mb-3">
+                        Contactez-nous pour toute question concernant votre commande
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="tel:+22670123456" class="btn btn-sm btn-success rounded-pill">
+                            <i class="bi bi-telephone"></i> Appeler
+                        </a>
+                        <a href="https://wa.me/22670123456" class="btn btn-sm btn-outline-success rounded-pill">
+                            <i class="bi bi-whatsapp"></i> WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

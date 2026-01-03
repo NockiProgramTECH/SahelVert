@@ -1,0 +1,508 @@
+<!-- ========== liste_produits.html - Liste complète des produits ========== -->
+{% extends 'base.html' %}
+
+{% block title %}Nos Produits - SahelVert{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-4">
+    <!-- En-tête et recherche -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="bi bi-shop"></i> Nos Produits
+                    </h1>
+                    <p class="text-muted mb-0">
+                        Découvrez nos produits frais cultivés hors-sol
+                    </p>
+                </div>
+                
+                <!-- Barre de recherche -->
+                <form method="GET" action="/produits/" class="d-flex gap-2">
+                    <div class="input-group" style="min-width: 300px;">
+                        <input type="text" 
+                               class="form-control" 
+                               name="q" 
+                               placeholder="Rechercher un produit..."
+                               value="{{ recherche }}">
+                        <button class="btn btn-success" type="submit">
+                            <i class="bi bi-search"></i> Rechercher
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar - Filtres -->
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-funnel"></i> Filtres
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="/produits/" id="filterForm">
+                        <!-- Catégories -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">
+                                <i class="bi bi-grid"></i> Catégories
+                            </h6>
+                            <div class="list-group">
+                                <a href="/produits/" 
+                                   class="list-group-item list-group-item-action {% if not categorie_selectionnee %}active{% endif %}">
+                                    <i class="bi bi-collection"></i> Toutes les catégories
+                                    <span class="badge bg-secondary float-end">{{ produits.paginator.count }}</span>
+                                </a>
+                                {% for cat in categories %}
+                                <a href="?categorie={{ cat.id }}" 
+                                   class="list-group-item list-group-item-action {% if categorie_selectionnee == cat.id|stringformat:'s' %}active{% endif %}">
+                                    {{ cat.nom }}
+                                    <span class="badge bg-secondary float-end">{{ cat.produits.count }}</span>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Prix -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">
+                                <i class="bi bi-tag"></i> Fourchette de prix
+                            </h6>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" 
+                                           class="form-control form-control-sm" 
+                                           name="prix_min" 
+                                           placeholder="Min" 
+                                           value="{{ request.GET.prix_min }}">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" 
+                                           class="form-control form-control-sm" 
+                                           name="prix_max" 
+                                           placeholder="Max"
+                                           value="{{ request.GET.prix_max }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Disponibilité -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">
+                                <i class="bi bi-check-circle"></i> Disponibilité
+                            </h6>
+                            <div class="form-check">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       name="en_stock" 
+                                       id="enStock"
+                                       {% if request.GET.en_stock %}checked{% endif %}>
+                                <label class="form-check-label" for="enStock">
+                                    En stock uniquement
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       name="en_promotion" 
+                                       id="enPromotion"
+                                       {% if request.GET.en_promotion %}checked{% endif %}>
+                                <label class="form-check-label" for="enPromotion">
+                                    En promotion
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Méthode de culture -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">
+                                <i class="bi bi-droplet"></i> Méthode de culture
+                            </h6>
+                            <select class="form-select form-select-sm" name="methode">
+                                <option value="">Toutes</option>
+                                <option value="hydroponie" {% if request.GET.methode == 'hydroponie' %}selected{% endif %}>
+                                    Hydroponie
+                                </option>
+                                <option value="aquaponie" {% if request.GET.methode == 'aquaponie' %}selected{% endif %}>
+                                    Aquaponie
+                                </option>
+                                <option value="aeroponie" {% if request.GET.methode == 'aeroponie' %}selected{% endif %}>
+                                    Aéroponie
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Boutons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Appliquer
+                            </button>
+                            <a href="/produits/" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Réinitialiser
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des produits -->
+        <div class="col-lg-9">
+            <!-- Barre d'outils -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body py-2">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <p class="mb-0">
+                                <strong>{{ produits.paginator.count }}</strong> produit(s) trouvé(s)
+                                {% if recherche %}
+                                pour "<em>{{ recherche }}</em>"
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <form method="GET" class="d-flex justify-content-end align-items-center gap-2">
+                                {% if categorie_selectionnee %}
+                                <input type="hidden" name="categorie" value="{{ categorie_selectionnee }}">
+                                {% endif %}
+                                {% if recherche %}
+                                <input type="hidden" name="q" value="{{ recherche }}">
+                                {% endif %}
+                                
+                                <label class="mb-0 text-nowrap small">Trier par:</label>
+                                <select name="tri" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                                    <option value="recent" {% if tri == 'recent' %}selected{% endif %}>
+                                        Plus récents
+                                    </option>
+                                    <option value="nom" {% if tri == 'nom' %}selected{% endif %}>
+                                        Nom (A-Z)
+                                    </option>
+                                    <option value="prix_asc" {% if tri == 'prix_asc' %}selected{% endif %}>
+                                        Prix croissant
+                                    </option>
+                                    <option value="prix_desc" {% if tri == 'prix_desc' %}selected{% endif %}>
+                                        Prix décroissant
+                                    </option>
+                                    <option value="populaire" {% if tri == 'populaire' %}selected{% endif %}>
+                                        Populaires
+                                    </option>
+                                </select>
+                                
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-secondary active" onclick="setView('grid')">
+                                        <i class="bi bi-grid-3x3"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setView('list')">
+                                        <i class="bi bi-list-ul"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grille de produits -->
+            <div class="row" id="productsGrid">
+                {% if produits %}
+                    {% for produit in produits %}
+                    <div class="col-md-4 mb-4 product-item">
+                        <div class="card product-card shadow-sm h-100">
+                            <!-- Badge promotion -->
+                            {% if produit.en_promotion %}
+                            <span class="badge badge-promo rounded-pill">
+                                -{{ produit.pourcentage_promotion|floatformat:0 }}%
+                            </span>
+                            {% endif %}
+                            
+                            <!-- Badge stock -->
+                            {% if produit.stock < 5 and produit.stock > 0 %}
+                            <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2">
+                                <i class="bi bi-exclamation-triangle"></i> Stock limité
+                            </span>
+                            {% elif produit.stock == 0 %}
+                            <span class="badge bg-danger position-absolute top-0 start-0 m-2">
+                                <i class="bi bi-x-circle"></i> Rupture de stock
+                            </span>
+                            {% endif %}
+                            
+                            <!-- Image -->
+                            <div class="position-relative overflow-hidden" style="height: 250px;">
+                                <img src="{{ produit.image.url }}" 
+                                     class="card-img-top" 
+                                     alt="{{ produit.nom }}"
+                                     style="height: 100%; object-fit: cover; transition: transform 0.3s;"
+                                     onmouseover="this.style.transform='scale(1.1)'"
+                                     onmouseout="this.style.transform='scale(1)'">
+                                
+                                <!-- Bouton favori -->
+                                <button class="btn btn-light rounded-circle position-absolute top-0 end-0 m-2"
+                                        style="width: 40px; height: 40px;">
+                                    <i class="bi bi-heart"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="card-body d-flex flex-column">
+                                <!-- Catégorie -->
+                                <span class="badge bg-success mb-2 align-self-start">
+                                    {{ produit.categorie.nom }}
+                                </span>
+                                
+                                <!-- Nom du produit -->
+                                <h5 class="card-title">
+                                    <a href="/produit/{{ produit.id }}/" class="text-decoration-none text-dark">
+                                        {{ produit.nom }}
+                                    </a>
+                                </h5>
+                                
+                                <!-- Description courte -->
+                                <p class="card-text text-muted small flex-grow-1">
+                                    {{ produit.description|truncatewords:15 }}
+                                </p>
+                                
+                                <!-- Informations supplémentaires -->
+                                <div class="mb-3">
+                                    {% if produit.methode_culture %}
+                                    <small class="text-muted">
+                                        <i class="bi bi-droplet-fill text-primary"></i>
+                                        {{ produit.methode_culture }}
+                                    </small>
+                                    {% endif %}
+                                    
+                                    {% if produit.certifications %}
+                                    <br>
+                                    <small class="text-success">
+                                        <i class="bi bi-patch-check-fill"></i>
+                                        {{ produit.certifications }}
+                                    </small>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Prix -->
+                                <div class="mb-3">
+                                    {% if produit.en_promotion %}
+                                    <div>
+                                        <span class="text-muted text-decoration-line-through small">
+                                            {{ produit.prix }} FCFA
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <strong class="text-success fs-4">
+                                            {{ produit.prix_avec_promotion }} FCFA
+                                        </strong>
+                                        <small class="text-muted">/{{ produit.unite }}</small>
+                                    </div>
+                                    {% else %}
+                                    <strong class="text-success fs-4">
+                                        {{ produit.prix }} FCFA
+                                    </strong>
+                                    <small class="text-muted">/{{ produit.unite }}</small>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Stock disponible -->
+                                <div class="mb-3">
+                                    {% if produit.stock > 0 %}
+                                    <small class="text-muted">
+                                        <i class="bi bi-check-circle text-success"></i>
+                                        {{ produit.stock }} {{ produit.unite }} disponible(s)
+                                    </small>
+                                    {% else %}
+                                    <small class="text-danger">
+                                        <i class="bi bi-x-circle"></i>
+                                        Rupture de stock
+                                    </small>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Boutons d'action -->
+                                <div class="d-grid gap-2">
+                                    {% if produit.stock > 0 %}
+                                    <a href="/produit/{{ produit.id }}/" class="btn btn-success rounded-pill">
+                                        <i class="bi bi-cart-plus"></i> Ajouter au panier
+                                    </a>
+                                    {% else %}
+                                    <button class="btn btn-secondary rounded-pill" disabled>
+                                        <i class="bi bi-x-circle"></i> Indisponible
+                                    </button>
+                                    {% endif %}
+                                    
+                                    <a href="/produit/{{ produit.id }}/" class="btn btn-outline-primary btn-sm rounded-pill">
+                                        <i class="bi bi-eye"></i> Voir détails
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Aucun produit trouvé -->
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox display-1 text-muted"></i>
+                            <h3 class="mt-4">Aucun produit trouvé</h3>
+                            <p class="text-muted mb-4">
+                                Essayez de modifier vos critères de recherche
+                            </p>
+                            <a href="/produits/" class="btn btn-success rounded-pill">
+                                <i class="bi bi-arrow-counterclockwise"></i> Voir tous les produits
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Pagination -->
+            {% if produits.has_other_pages %}
+            <nav aria-label="Navigation des produits" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if produits.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ produits.previous_page_number }}{% if categorie_selectionnee %}&categorie={{ categorie_selectionnee }}{% endif %}{% if recherche %}&q={{ recherche }}{% endif %}{% if tri %}&tri={{ tri }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i> Précédent
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link"><i class="bi bi-chevron-left"></i> Précédent</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in produits.paginator.page_range %}
+                        {% if produits.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > produits.number|add:'-3' and num < produits.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if categorie_selectionnee %}&categorie={{ categorie_selectionnee }}{% endif %}{% if recherche %}&q={{ recherche }}{% endif %}{% if tri %}&tri={{ tri }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if produits.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ produits.next_page_number }}{% if categorie_selectionnee %}&categorie={{ categorie_selectionnee }}{% endif %}{% if recherche %}&q={{ recherche }}{% endif %}{% if tri %}&tri={{ tri }}{% endif %}">
+                            Suivant <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Suivant <i class="bi bi-chevron-right"></i></span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- CSS personnalisé -->
+<style>
+.product-card {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2) !important;
+}
+
+.badge-promo {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    background: #f4a261;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+}
+
+/* Vue liste (optionnel) */
+.list-view .product-item {
+    width: 100%;
+}
+
+.list-view .product-card {
+    flex-direction: row;
+}
+
+.list-view .product-card img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Animation de chargement */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.product-item {
+    animation: fadeIn 0.5s ease-in-out;
+}
+</style>
+
+<!-- JavaScript pour les interactions -->
+<script>
+// Fonction pour changer l'affichage grille/liste
+function setView(viewType) {
+    const grid = document.getElementById('productsGrid');
+    const buttons = document.querySelectorAll('.btn-group button');
+    
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    if (viewType === 'list') {
+        grid.classList.add('list-view');
+    } else {
+        grid.classList.remove('list-view');
+    }
+    
+    // Sauvegarder la préférence
+    localStorage.setItem('productView', viewType);
+}
+
+// Restaurer la vue préférée au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    const savedView = localStorage.getItem('productView');
+    if (savedView === 'list') {
+        setView('list');
+    }
+});
+
+// Animation au scroll
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+});
+
+document.querySelectorAll('.product-item').forEach(item => {
+    item.style.opacity = '0';
+    item.style.transform = 'translateY(20px)';
+    item.style.transition = 'all 0.5s ease-in-out';
+    observer.observe(item);
+});
+</script>
+{% endblock %}

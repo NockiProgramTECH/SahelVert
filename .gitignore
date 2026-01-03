@@ -1,0 +1,39 @@
+# Python
+*.py[cod]
+__pycache__/
+*.so
+
+# Environnements virtuels
+env/
+venv/
+.venv/
+
+# Django
+db.sqlite3
+staticfiles/
+/media/
+.env
+
+# Logs and runtime files
+*.log
+*.pot
+*.pyc
+
+# IDEs
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Test / Coverage
+.htmlcov/
+.tox/
+.pytest_cache/
+.coverage
+
+# Node
+node_modules/
+
+# Misc
+*.swp

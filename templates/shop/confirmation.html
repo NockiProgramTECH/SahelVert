@@ -1,0 +1,449 @@
+<!-- ========== confirmation.html - Page de confirmation de commande ========== -->
+{% extends 'base.html' %}
+
+{% block title %}Commande confirmée - SahelVert{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Animation de succès -->
+    <div class="text-center mb-5">
+        <div class="mb-4">
+            <div class="success-checkmark">
+                <div class="check-icon">
+                    <span class="icon-line line-tip"></span>
+                    <span class="icon-line line-long"></span>
+                    <div class="icon-circle"></div>
+                    <div class="icon-fix"></div>
+                </div>
+            </div>
+        </div>
+        
+        <h1 class="display-4 text-success mb-3">
+            <i class="bi bi-check-circle-fill"></i> Commande confirmée !
+        </h1>
+        <p class="lead mb-4">
+            Merci pour votre commande, {{ commande.client.user.get_full_name }} !
+        </p>
+        <p class="text-muted">
+            Numéro de commande: <strong class="text-dark">{{ commande.numero_commande }}</strong>
+        </p>
+    </div>
+
+    <div class="row">
+        <!-- Détails de la commande -->
+        <div class="col-lg-8">
+            <!-- Statut de paiement -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-credit-card"></i> Statut du paiement
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if commande.mode_paiement == 'cash' %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Paiement à la livraison</strong><br>
+                        Vous paierez en espèces lors de la réception de votre commande.
+                    </div>
+                    {% elif commande.mode_paiement == 'orange_money' %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-phone"></i>
+                        <strong>Paiement Orange Money en attente</strong><br>
+                        Nous avons envoyé une demande de paiement à votre numéro <strong>{{ commande.paiement.numero_telephone }}</strong>.<br>
+                        <small>Code de transaction: <code>{{ commande.paiement.code_transaction }}</code></small>
+                    </div>
+                    <div class="p-3 bg-light rounded">
+                        <h6 class="mb-2">Instructions:</h6>
+                        <ol class="mb-0">
+                            <li>Composez <strong>#144#</strong> sur votre téléphone</li>
+                            <li>Sélectionnez "Mon porte-monnaie"</li>
+                            <li>Sélectionnez "Effectuer un paiement"</li>
+                            <li>Entrez le code: <strong>{{ commande.paiement.code_transaction }}</strong></li>
+                            <li>Validez avec votre code PIN</li>
+                        </ol>
+                    </div>
+                    {% elif commande.mode_paiement == 'moov_money' %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-phone"></i>
+                        <strong>Paiement Moov Money en attente</strong><br>
+                        Nous avons envoyé une demande de paiement à votre numéro <strong>{{ commande.paiement.numero_telephone }}</strong>.<br>
+                        <small>Code de transaction: <code>{{ commande.paiement.code_transaction }}</code></small>
+                    </div>
+                    <div class="p-3 bg-light rounded">
+                        <h6 class="mb-2">Instructions:</h6>
+                        <ol class="mb-0">
+                            <li>Composez <strong>#555#</strong> sur votre téléphone</li>
+                            <li>Sélectionnez "Payer un marchand"</li>
+                            <li>Entrez le code: <strong>{{ commande.paiement.code_transaction }}</strong></li>
+                            <li>Validez avec votre code secret</li>
+                        </ol>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Informations de livraison -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-truck"></i> Informations de livraison
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Adresse:</strong><br>
+                            {{ commande.adresse_livraison }}<br>
+                            {{ commande.quartier_livraison }}, {{ commande.ville_livraison }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Contact:</strong><br>
+                            {{ commande.telephone_livraison }}
+                        </div>
+                    </div>
+                    
+                    {% if commande.notes_client %}
+                    <div class="mt-2">
+                        <strong>Instructions:</strong><br>
+                        <p class="text-muted mb-0">{{ commande.notes_client }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="bi bi-clock"></i>
+                        <strong>Délai de livraison estimé:</strong> 24-48 heures à Ouagadougou
+                    </div>
+                </div>
+            </div>
+
+            <!-- Détails des produits -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-box-seam"></i> Détails de la commande
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produit</th>
+                                    <th>Prix unitaire</th>
+                                    <th>Quantité</th>
+                                    <th class="text-end">Sous-total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in commande.items.all %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ item.nom_produit }}</strong>
+                                    </td>
+                                    <td>{{ item.prix_unitaire }} FCFA</td>
+                                    <td>{{ item.quantite }} {{ item.unite }}</td>
+                                    <td class="text-end">
+                                        <strong>{{ item.sous_total }} FCFA</strong>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Sous-total:</strong></td>
+                                    <td class="text-end">{{ commande.sous_total }} FCFA</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Frais de livraison:</strong></td>
+                                    <td class="text-end">{{ commande.frais_livraison }} FCFA</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                    <td class="text-end">
+                                        <strong class="fs-5">{{ commande.total }} FCFA</strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions et informations -->
+        <div class="col-lg-4">
+            <!-- Prochaines étapes -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-check"></i> Prochaines étapes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                1
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <strong>Confirmation</strong>
+                            <p class="text-muted small mb-0">
+                                Nous préparons votre commande
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-light text-muted d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                2
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <strong>Préparation</strong>
+                            <p class="text-muted small mb-0">
+                                Cueillette de vos produits frais
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-light text-muted d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                3
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <strong>Livraison</strong>
+                            <p class="text-muted small mb-0">
+                                Livraison à votre adresse
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0">
+                            <div class="rounded-circle bg-light text-muted d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                4
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <strong>Réception</strong>
+                            <p class="text-muted small mb-0">
+                                Profitez de vos produits!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/mes-commandes" class="btn btn-primary rounded-pill">
+                            <i class="bi bi-list-ul"></i> Voir mes commandes
+                        </a>
+                        <a href="/produits" class="btn btn-outline-success rounded-pill">
+                            <i class="bi bi-shop"></i> Continuer mes achats
+                        </a>
+                        <button class="btn btn-outline-secondary rounded-pill" onclick="window.print()">
+                            <i class="bi bi-printer"></i> Imprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact support -->
+            <div class="card shadow-sm border-success">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="bi bi-headset text-success"></i> Besoin d'aide?
+                    </h6>
+                    <p class="small text-muted mb-3">
+                        Notre équipe est là pour vous aider 7j/7
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="tel:+22670123456" class="btn btn-sm btn-success rounded-pill">
+                            <i class="bi bi-telephone"></i> +226 70 12 34 56
+                        </a>
+                        <a href="https://wa.me/22670123456" class="btn btn-sm btn-outline-success rounded-pill" target="_blank">
+                            <i class="bi bi-whatsapp"></i> WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification email -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-envelope"></i>
+                Un email de confirmation a été envoyé à <strong>{{ request.user.email }}</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Animation de la coche de succès */
+.success-checkmark {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+}
+
+.success-checkmark .check-icon {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    border-radius: 50%;
+    box-sizing: content-box;
+    border: 4px solid #198754;
+}
+
+.success-checkmark .check-icon::before {
+    top: 3px;
+    left: -2px;
+    width: 30px;
+    transform-origin: 100% 50%;
+    border-radius: 100px 0 0 100px;
+}
+
+.success-checkmark .check-icon::after {
+    top: 0;
+    left: 30px;
+    width: 60px;
+    transform-origin: 0 50%;
+    border-radius: 0 100px 100px 0;
+    animation: rotate-circle 4.25s ease-in;
+}
+
+.success-checkmark .check-icon::before, 
+.success-checkmark .check-icon::after {
+    content: '';
+    height: 100px;
+    position: absolute;
+    background: #fff;
+    transform: rotate(-45deg);
+}
+
+.success-checkmark .check-icon .icon-line {
+    height: 5px;
+    background-color: #198754;
+    display: block;
+    border-radius: 2px;
+    position: absolute;
+    z-index: 10;
+}
+
+.success-checkmark .check-icon .icon-line.line-tip {
+    top: 46px;
+    left: 14px;
+    width: 25px;
+    transform: rotate(45deg);
+    animation: icon-line-tip 0.75s;
+}
+
+.success-checkmark .check-icon .icon-line.line-long {
+    top: 38px;
+    right: 8px;
+    width: 47px;
+    transform: rotate(-45deg);
+    animation: icon-line-long 0.75s;
+}
+
+.success-checkmark .check-icon .icon-circle {
+    top: -4px;
+    left: -4px;
+    z-index: 10;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    position: absolute;
+    box-sizing: content-box;
+    border: 4px solid rgba(25, 135, 84, .5);
+}
+
+.success-checkmark .check-icon .icon-fix {
+    top: 8px;
+    width: 5px;
+    left: 26px;
+    z-index: 1;
+    height: 85px;
+    position: absolute;
+    transform: rotate(-45deg);
+    background-color: #fff;
+}
+
+@keyframes rotate-circle {
+    0% {
+        transform: rotate(-45deg);
+    }
+    5% {
+        transform: rotate(-45deg);
+    }
+    12% {
+        transform: rotate(-405deg);
+    }
+    100% {
+        transform: rotate(-405deg);
+    }
+}
+
+@keyframes icon-line-tip {
+    0% {
+        width: 0;
+        left: 1px;
+        top: 19px;
+    }
+    54% {
+        width: 0;
+        left: 1px;
+        top: 19px;
+    }
+    70% {
+        width: 50px;
+        left: -8px;
+        top: 37px;
+    }
+    84% {
+        width: 17px;
+        left: 21px;
+        top: 48px;
+    }
+    100% {
+        width: 25px;
+        left: 14px;
+        top: 45px;
+    }
+}
+
+@keyframes icon-line-long {
+    0% {
+        width: 0;
+        right: 46px;
+        top: 54px;
+    }
+    65% {
+        width: 0;
+        right: 46px;
+        top: 54px;
+    }
+    84% {
+        width: 55px;
+        right: 0px;
+        top: 35px;
+    }
+    100% {
+        width: 47px;
+        right: 8px;
+        top: 38px;
+    }
+}
+</style>
+{% endblock %}

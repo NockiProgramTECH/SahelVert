@@ -1,0 +1,155 @@
+
+<!-- ========== panier.html - Page du panier d'achat ========== -->
+{% extends 'base.html' %}
+
+{% block title %}Mon Panier - SahelVert{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">
+        <i class="bi bi-cart3"></i> Mon Panier
+    </h1>
+
+    {% if lignes %}
+    <div class="row">
+        <!-- Liste des produits -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Produit</th>
+                                <th>Prix unitaire</th>
+                                <th>Quantité</th>
+                                <th>Sous-total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ligne in lignes %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ ligne.produit.image.url }}" 
+                                             alt="{{ ligne.produit.nom }}"
+                                             class="rounded me-3"
+                                             style="width: 80px; height: 80px; object-fit: cover;">
+                                        <div>
+                                            <h6 class="mb-0">{{ ligne.produit.nom }}</h6>
+                                            <small class="text-muted">{{ ligne.produit.categorie.nom }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong>{{ ligne.produit.prix_avec_promotion }} FCFA</strong>
+                                    <br>
+                                    <small class="text-muted">/{{ ligne.produit.unite }}</small>
+                                </td>
+                                <td>
+                                    <form method="POST" action="/modifier-panier/{{ ligne.id }}/" class="d-inline">
+                                        {% csrf_token %}
+                                        <div class="input-group" style="width: 130px;">
+                                            <button type="submit" name="action" value="diminuer" class="btn btn-outline-secondary btn-sm">
+                                                <i class="bi bi-dash"></i>
+                                            </button>
+                                            <input type="text" 
+                                                   class="form-control form-control-sm text-center" 
+                                                   value="{{ ligne.quantite }}"
+                                                   readonly>
+                                            <button type="submit" name="action" value="augmenter" class="btn btn-outline-secondary btn-sm">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
+                                <td>
+                                    <strong class="text-success">{{ ligne.sous_total }} FCFA</strong>
+                                </td>
+                                <td>
+                                    <form method="POST" action="/supprimer-du-panier/{{ ligne.id }}/" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="/produits" class="btn btn-outline-primary rounded-pill">
+                    <i class="bi bi-arrow-left"></i> Continuer mes achats
+                </a>
+                <form method="POST" action="/vider-panier/">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger rounded-pill">
+                        <i class="bi bi-trash"></i> Vider le panier
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Résumé de la commande -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt"></i> Résumé
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Sous-total</span>
+                        <strong>{{ total }} FCFA</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Frais de livraison</span>
+                        <strong>1 000 FCFA</strong>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <h5>Total</h5>
+                        <h5 class="text-success">{{ total|add:1000 }} FCFA</h5>
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="/commander/" class="btn btn-success btn-lg rounded-pill">
+                            <i class="bi bi-check-circle"></i> Passer commande
+                        </a>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6 class="mb-2">
+                            <i class="bi bi-shield-check text-success"></i> Paiement sécurisé
+                        </h6>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Orange_Money_Logo.svg/200px-Orange_Money_Logo.svg.png" 
+                                 alt="Orange Money" 
+                                 style="height: 30px;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Moov_Africa_logo.svg/200px-Moov_Africa_logo.svg.png" 
+                                 alt="Moov Money" 
+                                 style="height: 30px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Panier vide -->
+    <div class="text-center py-5">
+        <i class="bi bi-cart-x display-1 text-muted"></i>
+        <h3 class="mt-4">Votre panier est vide</h3>
+        <p class="text-muted mb-4">Découvrez nos produits frais et commencez vos achats!</p>
+        <a href="/produits" class="btn btn-success btn-lg rounded-pill">
+            <i class="bi bi-shop"></i> Voir nos produits
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

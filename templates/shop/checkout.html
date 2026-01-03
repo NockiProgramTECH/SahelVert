@@ -1,0 +1,342 @@
+<!-- ========== checkout.html - Page de finalisation de commande ========== -->
+{% extends 'base.html' %}
+
+{% block title %}Finaliser ma commande - SahelVert{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">
+        <i class="bi bi-credit-card"></i> Finaliser ma commande
+    </h1>
+
+    <!-- Étapes de commande -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-center flex-fill">
+                    <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                        <i class="bi bi-cart-check fs-5"></i>
+                    </div>
+                    <p class="mb-0 small">Panier</p>
+                </div>
+                <div class="flex-fill" style="height: 2px; background: #dee2e6;"></div>
+                <div class="text-center flex-fill">
+                    <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                        <i class="bi bi-truck fs-5"></i>
+                    </div>
+                    <p class="mb-0 small">Livraison</p>
+                </div>
+                <div class="flex-fill" style="height: 2px; background: #dee2e6;"></div>
+                <div class="text-center flex-fill">
+                    <div class="rounded-circle bg-secondary text-white d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                        <i class="bi bi-credit-card fs-5"></i>
+                    </div>
+                    <p class="mb-0 small">Paiement</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" action="/commander/" id="checkoutForm">
+        {% csrf_token %}
+        
+        <div class="row">
+            <!-- Formulaire de livraison et paiement -->
+            <div class="col-lg-8">
+                <!-- Informations de livraison -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="bi bi-geo-alt"></i> Informations de livraison
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Nom complet *</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       name="nom_complet"
+                                       value="{{ request.user.get_full_name }}"
+                                       required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Téléphone *</label>
+                                <input type="tel" 
+                                       class="form-control" 
+                                       name="telephone"
+                                       placeholder="Ex: 70 12 34 56"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Adresse complète *</label>
+                            <textarea class="form-control" 
+                                      name="adresse" 
+                                      rows="2"
+                                      placeholder="Ex: Rue 12.34, Porte 567"
+                                      required></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Ville *</label>
+                                <select class="form-select" name="ville" required>
+                                    <option value="">Choisir une ville</option>
+                                    <option value="Ouagadougou" selected>Ouagadougou</option>
+                                    <option value="Bobo-Dioulasso">Bobo-Dioulasso</option>
+                                    <option value="Koudougou">Koudougou</option>
+                                    <option value="Ouahigouya">Ouahigouya</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Quartier/Secteur *</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       name="quartier"
+                                       placeholder="Ex: Ouaga 2000"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Instructions de livraison (optionnel)</label>
+                            <textarea class="form-control" 
+                                      name="notes" 
+                                      rows="2"
+                                      placeholder="Ex: Appeler 30 minutes avant la livraison"></textarea>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Délai de livraison:</strong> Livraison sous 24-48h à Ouagadougou
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Méthode de paiement -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="bi bi-wallet2"></i> Méthode de paiement
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Paiement à la livraison -->
+                        <div class="form-check mb-3 p-3 border rounded">
+                            <input class="form-check-input" 
+                                   type="radio" 
+                                   name="mode_paiement" 
+                                   id="cash"
+                                   value="cash"
+                                   checked
+                                   onchange="togglePaymentDetails()">
+                            <label class="form-check-label w-100" for="cash">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>
+                                            <i class="bi bi-cash-coin text-success"></i>
+                                            Paiement à la livraison
+                                        </strong>
+                                        <p class="mb-0 small text-muted">
+                                            Payez en espèces lors de la réception de votre commande
+                                        </p>
+                                    </div>
+                                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Orange Money -->
+                        <div class="form-check mb-3 p-3 border rounded">
+                            <input class="form-check-input" 
+                                   type="radio" 
+                                   name="mode_paiement" 
+                                   id="orange_money"
+                                   value="orange_money"
+                                   onchange="togglePaymentDetails()">
+                            <label class="form-check-label w-100" for="orange_money">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>
+                                            <i class="bi bi-phone text-warning"></i>
+                                            Orange Money
+                                        </strong>
+                                        <p class="mb-0 small text-muted">
+                                            Payez directement avec votre compte Orange Money
+                                        </p>
+                                    </div>
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Orange_Money_Logo.svg/200px-Orange_Money_Logo.svg.png" 
+                                         alt="Orange Money" 
+                                         style="height: 30px;">
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Moov Money -->
+                        <div class="form-check mb-3 p-3 border rounded">
+                            <input class="form-check-input" 
+                                   type="radio" 
+                                   name="mode_paiement" 
+                                   id="moov_money"
+                                   value="moov_money"
+                                   onchange="togglePaymentDetails()">
+                            <label class="form-check-label w-100" for="moov_money">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>
+                                            <i class="bi bi-phone text-primary"></i>
+                                            Moov Money
+                                        </strong>
+                                        <p class="mb-0 small text-muted">
+                                            Payez directement avec votre compte Moov Money
+                                        </p>
+                                    </div>
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Moov_Africa_logo.svg/200px-Moov_Africa_logo.svg.png" 
+                                         alt="Moov Money" 
+                                         style="height: 30px;">
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Détails Mobile Money -->
+                        <div id="mobileMoneyDetails" class="mt-3" style="display: none;">
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>Instructions de paiement:</strong>
+                                <ol class="mb-0 mt-2">
+                                    <li>Après avoir validé votre commande, vous recevrez un SMS avec le code de paiement</li>
+                                    <li>Composez <strong>#144#</strong> (Orange) ou <strong>#555#</strong> (Moov)</li>
+                                    <li>Suivez les instructions pour valider le paiement</li>
+                                    <li>Votre commande sera confirmée automatiquement</li>
+                                </ol>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Numéro de téléphone (Mobile Money) *</label>
+                                <input type="tel" 
+                                       class="form-control" 
+                                       name="telephone_paiement"
+                                       placeholder="Ex: 70 12 34 56"
+                                       id="telephonePaiement">
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success mt-3">
+                            <i class="bi bi-shield-check"></i>
+                            Paiements 100% sécurisés et cryptés
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Résumé de commande -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-receipt"></i> Résumé de commande
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Liste des produits -->
+                        <div class="mb-3">
+                            <h6 class="mb-3">Produits ({{ panier.items.count }})</h6>
+                            {% for ligne in panier.items.all %}
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="flex-grow-1">
+                                    <small>{{ ligne.produit.nom }}</small>
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ ligne.quantite }} × {{ ligne.produit.prix_avec_promotion }} FCFA
+                                    </small>
+                                </div>
+                                <small class="fw-bold">{{ ligne.sous_total }} FCFA</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <hr>
+
+                        <!-- Totaux -->
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Sous-total</span>
+                            <strong>{{ panier.total }} FCFA</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Livraison</span>
+                            <strong>1 000 FCFA</strong>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <h5>Total</h5>
+                            <h5 class="text-success">{{ panier.total|add:1000 }} FCFA</h5>
+                        </div>
+
+                        <!-- Bouton de validation -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg rounded-pill">
+                                <i class="bi bi-check-circle"></i> Valider la commande
+                            </button>
+                            <a href="/panier" class="btn btn-outline-secondary rounded-pill">
+                                <i class="bi bi-arrow-left"></i> Retour au panier
+                            </a>
+                        </div>
+
+                        <!-- Garanties -->
+                        <div class="mt-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-shield-check text-success me-2"></i>
+                                <small>Paiement sécurisé</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-truck text-success me-2"></i>
+                                <small>Livraison rapide 24-48h</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-arrow-clockwise text-success me-2"></i>
+                                <small>Produits ultra-frais</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-headset text-success me-2"></i>
+                                <small>Support client 7j/7</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+function togglePaymentDetails() {
+    const mobileMoneyDetails = document.getElementById('mobileMoneyDetails');
+    const telephonePaiement = document.getElementById('telephonePaiement');
+    const selectedPayment = document.querySelector('input[name="mode_paiement"]:checked').value;
+    
+    if (selectedPayment === 'orange_money' || selectedPayment === 'moov_money') {
+        mobileMoneyDetails.style.display = 'block';
+        telephonePaiement.required = true;
+    } else {
+        mobileMoneyDetails.style.display = 'none';
+        telephonePaiement.required = false;
+    }
+}
+
+// Validation du formulaire
+document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+    const selectedPayment = document.querySelector('input[name="mode_paiement"]:checked').value;
+    
+    if (selectedPayment === 'orange_money' || selectedPayment === 'moov_money') {
+        const telephone = document.getElementById('telephonePaiement').value;
+        if (!telephone) {
+            e.preventDefault();
+            alert('Veuillez entrer votre numéro de téléphone Mobile Money');
+            return false;
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,418 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4 py-lg-5">
+    <div class="row justify-content-center">
+        <!-- Formulaire d'inscription - Prend toute la largeur sur mobile -->
+        <div class="col-12 col-lg-8 col-xl-7 px-lg-4">
+            <div class="card border-0 shadow-lg rounded-4 p-3 p-md-4 p-lg-5">
+                <!-- En-tête -->
+                <div class="text-start mb-4">
+                    <h1 class="text-success fw-bold mb-3">Inscription</h1>
+                    <p class="text-muted mb-0">
+                        Créez votre compte pour profiter de tous nos services. Tous les champs marqués d'un * sont obligatoires.
+                    </p>
+                </div>
+
+                <form method="POST" novalidate class="needs-validation">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Organisation en 2 colonnes sur desktop -->
+                    <div class="row">
+                        <!-- Colonne gauche - Informations personnelles -->
+                        <div class="col-lg-6">
+                            <h5 class="text-dark mb-4 pb-2 border-bottom">
+                                <i class="fas fa-user me-2"></i>Informations personnelles
+                            </h5>
+                            
+                            <!-- Nom d'utilisateur -->
+                            <div class="mb-3">
+                                <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">
+                                    Nom d'utilisateur <span class="text-danger">*</span>
+                                </label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.username.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text text-muted small">
+                                    Choisissez un nom d'utilisateur unique.
+                                </div>
+                            </div>
+                            
+                            <!-- Prénom -->
+                            <div class="mb-3">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label fw-semibold">
+                                    Prénom <span class="text-danger">*</span>
+                                </label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.first_name.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Nom -->
+                            <div class="mb-3">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label fw-semibold">
+                                    Nom <span class="text-danger">*</span>
+                                </label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.last_name.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.email.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Téléphone -->
+                            <div class="mb-3">
+                                <label for="{{ form.telephone.id_for_label }}" class="form-label fw-semibold">
+                                    Téléphone
+                                </label>
+                                {{ form.telephone }}
+                                {% if form.telephone.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.telephone.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Colonne droite - Mot de passe et adresse -->
+                        <div class="col-lg-6">
+                            <h5 class="text-dark mb-4 pb-2 border-bottom">
+                                <i class="fas fa-lock me-2"></i>Sécurité
+                            </h5>
+                            
+                            <!-- Mot de passe 1 -->
+                            <div class="mb-3">
+                                <label for="{{ form.password1.id_for_label }}" class="form-label fw-semibold">
+                                    Mot de passe <span class="text-danger">*</span>
+                                </label>
+                                {{ form.password1 }}
+                                {% if form.password1.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.password1.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                                {% if form.password1.help_text %}
+                                    <div class="form-text text-muted small">
+                                        {{ form.password1.help_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Mot de passe 2 -->
+                            <div class="mb-4">
+                                <label for="{{ form.password2.id_for_label }}" class="form-label fw-semibold">
+                                    Confirmation du mot de passe <span class="text-danger">*</span>
+                                </label>
+                                {{ form.password2 }}
+                                {% if form.password2.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.password2.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Section adresse -->
+                            <h5 class="text-dark mb-4 pb-2 border-bottom mt-4">
+                                <i class="fas fa-home me-2"></i>Adresse
+                            </h5>
+                            
+                            <!-- Adresse -->
+                            <div class="mb-3">
+                                <label for="{{ form.adresse.id_for_label }}" class="form-label fw-semibold">
+                                    Adresse
+                                </label>
+                                {{ form.adresse }}
+                                {% if form.adresse.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.adresse.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Ville -->
+                            <div class="mb-3">
+                                <label for="{{ form.ville.id_for_label }}" class="form-label fw-semibold">
+                                    Ville
+                                </label>
+                                {{ form.ville }}
+                                {% if form.ville.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.ville.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Quartier -->
+                            <div class="mb-4">
+                                <label for="{{ form.quartier.id_for_label }}" class="form-label fw-semibold">
+                                    Quartier
+                                </label>
+                                {{ form.quartier }}
+                                {% if form.quartier.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.quartier.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conditions et bouton -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <!-- Conditions d'utilisation -->
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="acceptTerms" required>
+                                    <label class="form-check-label" for="acceptTerms">
+                                        J'accepte les 
+                                        <a href="#" class="text-success text-decoration-none">conditions générales d'utilisation</a>
+                                        et la 
+                                        <a href="#" class="text-success text-decoration-none">politique de confidentialité</a>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="invalid-feedback">
+                                        Vous devez accepter les conditions d'utilisation.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Bouton d'inscription -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg py-3 fw-bold">
+                                    <i class="fas fa-user-plus me-2"></i>S'inscrire maintenant
+                                </button>
+                                
+                                <!-- Lien de connexion -->
+                                <div class="text-center mt-4">
+                                    <p class="mb-0">
+                                        Vous avez déjà un compte ? 
+                                        <a href="{% url 'login' %}" class="text-success fw-semibold text-decoration-none">
+                                            Connectez-vous ici
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Informations supplémentaires -->
+            <div class="mt-4 p-4 bg-light rounded-3">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="text-success">
+                            <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                            <h6 class="fw-bold">Sécurisé</h6>
+                            <p class="small text-muted mb-0">Vos données sont protégées</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3 mb-md-0">
+                        <div class="text-success">
+                            <i class="fas fa-shipping-fast fa-2x mb-2"></i>
+                            <h6 class="fw-bold">Livraison rapide</h6>
+                            <p class="small text-muted mb-0">Commandez en toute simplicité</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-success">
+                            <i class="fas fa-headset fa-2x mb-2"></i>
+                            <h6 class="fw-bold">Support 24/7</h6>
+                            <p class="small text-muted mb-0">Assistance à votre écoute</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styles responsives */
+    @media (max-width: 768px) {
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 1rem !important;
+        }
+        
+        .container-fluid {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+        }
+        
+        .btn-lg {
+            padding: 0.8rem !important;
+            font-size: 1rem !important;
+        }
+        
+        .col-lg-6 {
+            padding-right: 15px;
+            padding-left: 15px;
+        }
+    }
+    
+    @media (min-width: 992px) {
+        .container-fluid {
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+        
+        .col-lg-6 {
+            padding-right: 30px;
+            padding-left: 30px;
+        }
+        
+        .col-lg-6:first-child {
+            border-right: 1px solid #e0e0e0;
+        }
+    }
+    
+    /* Styles des champs de formulaire */
+    .form-control, .form-control-lg {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus, .form-control-lg:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+    }
+    
+    /* Labels */
+    .form-label {
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+    
+    /* Sections */
+    h5 {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    .border-bottom {
+        border-color: #28a745 !important;
+    }
+    
+    /* Card styling */
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    /* Bouton */
+    .btn-lg {
+        border-radius: 10px;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+    }
+    
+    .btn-success:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    /* Ajustements pour les erreurs */
+    .text-danger.small {
+        font-size: 0.85rem;
+    }
+    
+    /* Info boxes */
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+    
+    .rounded-3 {
+        border-radius: 12px !important;
+    }
+</style>
+
+<!-- Validation JavaScript -->
+<script>
+    // Validation du formulaire
+    (function() {
+        'use strict';
+        
+        // Récupérer tous les formulaires avec la classe needs-validation
+        var forms = document.querySelectorAll('.needs-validation');
+        
+        // Empêcher la soumission si le formulaire n'est pas valide
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+        
+        // Validation en temps réel pour la case à cocher
+        const acceptTerms = document.getElementById('acceptTerms');
+        const submitBtn = document.querySelector('button[type="submit"]');
+        
+        if (acceptTerms && submitBtn) {
+            acceptTerms.addEventListener('change', function() {
+                if (this.checked) {
+                    submitBtn.disabled = false;
+                } else {
+                    submitBtn.disabled = true;
+                }
+            });
+            
+            // Désactiver le bouton initialement
+            submitBtn.disabled = true;
+        }
+        
+        // Ajouter un indicateur de champ requis
+        const requiredFields = document.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            const label = document.querySelector(`label[for="${field.id}"]`);
+            if (label && !label.innerHTML.includes('*')) {
+                label.innerHTML += ' <span class="text-danger">*</span>';
+            }
+        });
+    })();
+</script>
+{% endblock %}

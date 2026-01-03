@@ -1,0 +1,210 @@
+
+<!-- ========== accueil.html - Page d'accueil ========== -->
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<!-- Hero Section -->
+ <style>
+    /* =========================
+   IMAGE : ANIMATION REBOND
+   ========================= */
+.bouncing-img {
+    animation: bounce 2.5s infinite ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-25px);
+    }
+}
+
+.fade-in-btn {
+    opacity: 0;
+    animation: fadeIn 1s ease forwards;
+    animation-delay: 4.5s;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+ </style>
+<section class="hero-section">
+    <div class="container">
+
+      <div class="row justify-content-center align-items-center hero-section">
+    <div class="col-6">
+        <h1 class="display-3 fw-bold mb-4 typing-h1">
+            Bienvenue chez SahelVert
+        </h1>
+
+        <p class="lead mb-4 typing-p">
+            Des légumes et fruits frais cultivés en hydroponie,<br>
+            100% naturels, sans pesticides
+        </p>
+
+        <a href="/produits" class="btn btn-light btn-lg rounded-pill px-5 fade-in-btn">
+            Découvrir nos produits <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="col-6 text-center">
+        <img src="{% static 'image/logo-no-bg.png' %}"
+             class="img-fluid bouncing-img"
+             alt="Produits frais SahelVert">
+    </div>
+</div>
+
+       
+    </div>
+</section>
+
+<!-- Avantages -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <div class="p-4">
+                    <i class="bi bi-droplet-fill text-success fs-1"></i>
+                    <h5 class="mt-3">Culture Hors-Sol</h5>
+                    <p>Hydroponie et aquaponie</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="p-4">
+                    <i class="bi bi-leaf text-success fs-1"></i>
+                    <h5 class="mt-3">100% Naturel</h5>
+                    <p>Sans pesticides ni OGM</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="p-4">
+                    <i class="bi bi-truck text-success fs-1"></i>
+                    <h5 class="mt-3">Livraison Rapide</h5>
+                    <p>À Ouagadougou</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="p-4">
+                    <i class="bi bi-award text-success fs-1"></i>
+                    <h5 class="mt-3">Qualité Garantie</h5>
+                    <p>Produits ultra-frais</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Produits en promotion -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">
+            <i class="bi bi-fire text-danger"></i> 
+            Promotions du moment
+        </h2>
+        
+        <div class="row">
+            {% for produit in produits_promotion %}
+            
+            
+            <div class="col-md-3 mb-4">
+                <div class="card product-card shadow-sm h-100">
+                    {% if produit.en_promotion %}
+                    <span class="badge badge-promo rounded-pill">
+                        -{{ produit.pourcentage_promotion }}%
+                    </span>
+                    {% endif %}
+                    
+                    <img src="{{ produit.image.url }}" class="card-img-top" alt="{{ produit.nom }}" style="height: 200px; object-fit: cover;">
+                    
+                    <div class="card-body">
+                        {% if produit.par_commande == True %}
+                          <span class="badge bg-success mb-2">{{ produit.categorie.nom }}</span>
+                    <span class ='badge bg-warning mb-2 '>Sur Commande</span>
+                {% else %}
+                    <span class="badge bg-success mb-2">{{ produit.categorie.nom }}</span>
+
+                            {% endif %}
+                
+                         <h5 class="card-title">{{ produit.nom }}</h5>
+                        <p class="card-text text-muted small">{{ produit.description|truncatewords:10 }}</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if produit.en_promotion %}
+                                <span class="text-muted text-decoration-line-through small">
+                                    {{ produit.prix }} FCFA
+                                </span><br>
+                                <strong class="text-success fs-5">
+                                    {{ produit.prix_avec_promotion }} FCFA
+                                </strong>
+                                {% else %}
+                                <strong class="text-success fs-5">
+                                    {{ produit.prix }} FCFA
+                                </strong>
+                                {% endif %}
+                                <small class="text-muted">/{{ produit.unite }}</small>
+                            </div>
+                        </div>
+                        
+                        <a href="/produit/{{ produit.id }}" class="btn btn-primary w-100 mt-3 rounded-pill">
+                            <i class="bi bi-cart-plus"></i> Ajouter
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">Aucune promotion en cours</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Nouveautés -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">
+            <i class="bi bi-stars text-warning"></i> 
+            Nouveautés
+        </h2>
+        
+        <div class="row">
+            {% for produit in nouveautes %}
+            <div class="col-md-3 mb-4">
+                <div class="card product-card shadow-sm h-100">
+                    <img src="{{ produit.image.url }}" class="card-img-top" alt="{{ produit.nom }}" style="height: 200px; object-fit: cover;">
+                    
+                    <div class="card-body">
+                        <span class="badge bg-success mb-2">{{ produit.categorie.nom }}</span>
+                        <h5 class="card-title">{{ produit.nom }}</h5>
+                        <p class="card-text text-muted small">{{ produit.description|truncatewords:10 }}</p>
+                        
+                        <div class="mb-3">
+                            <strong class="text-success fs-5">{{ produit.prix }} FCFA</strong>
+                            <small class="text-muted">/{{ produit.unite }}</small>
+                        </div>
+                        
+                        <a href="/produit/{{ produit.id }}" class="btn btn-primary w-100 rounded-pill">
+                            <i class="bi bi-cart-plus"></i> Ajouter
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="/produits" class="btn btn-outline-success btn-lg rounded-pill px-5">
+                Voir tous les produits <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

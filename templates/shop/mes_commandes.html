@@ -1,0 +1,262 @@
+<!-- ========== mes_commandes.html - Liste des commandes du client ========== -->
+{% extends 'base.html' %}
+
+{% block title %}Mes Commandes - SahelVert{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            <i class="bi bi-list-ul"></i> Mes Commandes
+        </h1>
+        <a href="/produits" class="btn btn-success rounded-pill">
+            <i class="bi bi-plus-circle"></i> Nouvelle commande
+        </a>
+    </div>
+
+    {% if commandes %}
+    <!-- Filtres de statut -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-sm btn-outline-secondary active" onclick="filterCommandes('all')">
+                    Toutes
+                </button>
+                <button class="btn btn-sm btn-outline-warning" onclick="filterCommandes('en_attente')">
+                    En attente
+                </button>
+                <button class="btn btn-sm btn-outline-info" onclick="filterCommandes('confirmee')">
+                    Confirmées
+                </button>
+                <button class="btn btn-sm btn-outline-primary" onclick="filterCommandes('en_preparation')">
+                    En préparation
+                </button>
+                <button class="btn btn-sm btn-outline-primary" onclick="filterCommandes('en_livraison')">
+                    En livraison
+                </button>
+                <button class="btn btn-sm btn-outline-success" onclick="filterCommandes('livree')">
+                    Livrées
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="filterCommandes('annulee')">
+                    Annulées
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des commandes -->
+    <div class="row">
+        {% for commande in commandes %}
+        <div class="col-12 mb-4 commande-item" data-statut="{{ commande.statut }}">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <strong>Commande #{{ commande.numero_commande }}</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar"></i>
+                                {{ commande.date_commande|date:"d/m/Y à H:i" }}
+                            </small>
+                        </div>
+                        <div class="col-md-3">
+                            {% if commande.statut == 'en_attente' %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-clock"></i> En attente
+                            </span>
+                            {% elif commande.statut == 'confirmee' %}
+                            <span class="badge bg-info">
+                                <i class="bi bi-check-circle"></i> Confirmée
+                            </span>
+                            {% elif commande.statut == 'en_preparation' %}
+                            <span class="badge bg-primary">
+                                <i class="bi bi-box-seam"></i> En préparation
+                            </span>
+                            {% elif commande.statut == 'en_livraison' %}
+                            <span class="badge bg-primary">
+                                <i class="bi bi-truck"></i> En livraison
+                            </span>
+                            {% elif commande.statut == 'livree' %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle-fill"></i> Livrée
+                            </span>
+                            {% elif commande.statut == 'annulee' %}
+                            <span class="badge bg-danger">
+                                <i class="bi bi-x-circle"></i> Annulée
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <strong class="text-success">{{ commande.total }} FCFA</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Informations de livraison -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="mb-2">
+                                <i class="bi bi-geo-alt"></i> Adresse de livraison
+                            </h6>
+                            <p class="text-muted mb-0">
+                                {{ commande.adresse_livraison }}<br>
+                                {{ commande.quartier_livraison }}, {{ commande.ville_livraison }}<br>
+                                <i class="bi bi-phone"></i> {{ commande.telephone_livraison }}
+                            </p>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="mb-2">
+                                <i class="bi bi-credit-card"></i> Paiement
+                            </h6>
+                            <p class="text-muted mb-0">
+                                {% if commande.mode_paiement == 'cash' %}
+                                    <i class="bi bi-cash-coin"></i> Paiement à la livraison
+                                {% elif commande.mode_paiement == 'orange_money' %}
+                                    <i class="bi bi-phone"></i> Orange Money
+                                {% elif commande.mode_paiement == 'moov_money' %}
+                                    <i class="bi bi-phone"></i> Moov Money
+                                {% endif %}
+                                <br>
+                                {% if commande.paiement_effectue %}
+                                    <span class="badge bg-success">Payé</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">En attente</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Produits commandés (résumé) -->
+                    <div class="mb-3">
+                        <h6 class="mb-2">
+                            <i class="bi bi-box-seam"></i> Produits ({{ commande.items.count }})
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for item in commande.items.all|slice:":3" %}
+                            <span class="badge bg-light text-dark border">
+                                {{ item.nom_produit }} ({{ item.quantite }} {{ item.unite }})
+                            </span>
+                            {% endfor %}
+                            {% if commande.items.count > 3 %}
+                            <span class="badge bg-light text-dark border">
+                                +{{ commande.items.count|add:"-3" }} autre(s)
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Tracking de la livraison -->
+                    {% if commande.statut != 'annulee' %}
+                    <div class="mb-3">
+                        <h6 class="mb-3">
+                            <i class="bi bi-map"></i> Suivi de livraison
+                        </h6>
+                        <div class="progress" style="height: 25px;">
+                            {% if commande.statut == 'en_attente' %}
+                            <div class="progress-bar bg-warning" style="width: 25%">25%</div>
+                            {% elif commande.statut == 'confirmee' %}
+                            <div class="progress-bar bg-info" style="width: 40%">40%</div>
+                            {% elif commande.statut == 'en_preparation' %}
+                            <div class="progress-bar bg-primary" style="width: 60%">60%</div>
+                            {% elif commande.statut == 'en_livraison' %}
+                            <div class="progress-bar bg-primary" style="width: 80%">80%</div>
+                            {% elif commande.statut == 'livree' %}
+                            <div class="progress-bar bg-success" style="width: 100%">100%</div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if commande.date_livraison_prevue %}
+                        <small class="text-muted mt-2 d-block">
+                            <i class="bi bi-clock"></i>
+                            Livraison prévue: {{ commande.date_livraison_prevue|date:"d/m/Y à H:i" }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="/commande/{{ commande.id }}/" class="btn btn-sm btn-primary rounded-pill">
+                            <i class="bi bi-eye"></i> Voir détails
+                        </a>
+                        
+                        {% if commande.statut in 'en_attente,confirmee' %}
+                        <form method="POST" action="/annuler-commande/{{ commande.id }}/" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="btn btn-sm btn-outline-danger rounded-pill"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande?')">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        {% if commande.statut == 'livree' %}
+                        <button class="btn btn-sm btn-outline-warning rounded-pill">
+                            <i class="bi bi-star"></i> Laisser un avis
+                        </button>
+                        {% endif %}
+                        
+                        <button class="btn btn-sm btn-outline-secondary rounded-pill">
+                            <i class="bi bi-printer"></i> Imprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination (si nécessaire) -->
+    <nav aria-label="Navigation des commandes" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+                <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
+            </li>
+        </ul>
+    </nav>
+
+    {% else %}
+    <!-- Aucune commande -->
+    <div class="text-center py-5">
+        <i class="bi bi-inbox display-1 text-muted"></i>
+        <h3 class="mt-4">Vous n'avez pas encore de commandes</h3>
+        <p class="text-muted mb-4">Découvrez nos produits frais et passez votre première commande!</p>
+        <a href="/produits" class="btn btn-success btn-lg rounded-pill">
+            <i class="bi bi-shop"></i> Voir nos produits
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Fonction pour filtrer les commandes par statut
+function filterCommandes(statut) {
+    const commandes = document.querySelectorAll('.commande-item');
+    const buttons = document.querySelectorAll('.btn-sm');
+    
+    // Réinitialiser les boutons
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Filtrer les commandes
+    commandes.forEach(commande => {
+        if (statut === 'all' || commande.dataset.statut === statut) {
+            commande.style.display = 'block';
+        } else {
+            commande.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}
+

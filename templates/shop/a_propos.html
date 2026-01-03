@@ -1,0 +1,203 @@
+<!-- ========== a_propos.html - Page À propos de SahelVert ========== -->
+{% extends 'base.html' %}
+
+{% block title %}À Propos - SahelVert{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section py-5" style="background: linear-gradient(135deg, rgba(45,80,22,0.95), rgba(107,159,58,0.95)), url('https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=1200'); background-size: cover; background-position: center;">
+    <div class="container text-center text-white">
+        <h1 class="display-3 fw-bold mb-3">À Propos de SahelVert</h1>
+        <p class="lead">L'agriculture du futur, aujourd'hui au Burkina Faso</p>
+    </div>
+</div>
+
+<div class="container my-5">
+    <!-- Notre Histoire -->
+    <section class="mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-4">
+                <h2 class="mb-4">
+                    <i class="bi bi-book text-success"></i> Notre Histoire
+                </h2>
+                <p class="lead">
+                    SahelVert est né d'une vision : rendre l'agriculture moderne et durable accessible à tous au Burkina Faso.
+                </p>
+                <p>
+                    Fondée en 2023 à Ouagadougou, notre entreprise s'est donnée pour mission de révolutionner la production agricole locale en adoptant les techniques de culture hors-sol les plus avancées.
+                </p>
+                <p>
+                    Grâce à l'hydroponie et l'aquaponie, nous cultivons des légumes et fruits ultra-frais, sans pesticides, tout en économisant jusqu'à 90% d'eau par rapport à l'agriculture traditionnelle.
+                </p>
+            </div>
+            <div class="col-md-6 mb-4">
+                <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=600" 
+                     class="img-fluid rounded shadow" 
+                     alt="Culture hydroponique">
+            </div>
+        </div>
+    </section>
+
+    <!-- Notre Mission -->
+    <section class="bg-light py-5 px-4 rounded mb-5">
+        <div class="text-center mb-5">
+            <h2 class="mb-3">
+                <i class="bi bi-bullseye text-success"></i> Notre Mission
+            </h2>
+            <p class="lead">
+                Nourrir le Burkina Faso avec des produits sains, frais et durables
+            </p>
+        </div>
+        
+        <div class="row text-center">
+            <div class="col-md-4 mb-4">
+                <div class="p-4">
+                    <i class="bi bi-leaf text-success display-4 mb-3"></i>
+                    <h4>Durabilité</h4>
+                    <p class="text-muted">
+                        Préserver nos ressources en eau et cultiver de manière écologique
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="p-4">
+                    <i class="bi bi-heart-pulse text-success display-4 mb-3"></i>
+                    <h4>Santé</h4>
+                    <p class="text-muted">
+                        Offrir des produits 100% naturels, sans pesticides ni OGM
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="p-4">
+                    <i class="bi bi-people text-success display-4 mb-3"></i>
+                    <h4>Accessibilité</h4>
+                    <p class="text-muted">
+                        Rendre les produits frais accessibles à tous les Burkinabè
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nos Méthodes -->
+    <section class="mb-5">
+        <div class="text-center mb-5">
+            <h2 class="mb-3">
+                <i class="bi bi-droplet text-success"></i> Nos Méthodes de Culture
+            </h2>
+            <p class="lead">
+                L'innovation au service de la qualité
+            </p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-droplet-fill text-primary display-3 mb-3"></i>
+                        <h4>Hydroponie</h4>
+                        <p class="text-muted">
+                            Culture dans l'eau enrichie en nutriments, sans terre. Économise 90% d'eau et permet une croissance optimale.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-bezier2 text-info display-3 mb-3"></i>
+                        <h4>Aquaponie</h4>
+                        <p class="text-muted">
+                            Système symbiotique combinant culture de plantes et élevage de poissons. 100% naturel et écologique.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-wind text-success display-3 mb-3"></i>
+                        <h4>Aéroponie</h4>
+                        <p class="text-muted">
+                            Culture dans l'air avec vaporisation de nutriments. Croissance ultra-rapide et rendement maximal.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nos Valeurs -->
+    <section class="mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-4 order-md-2">
+                <h2 class="mb-4">
+                    <i class="bi bi-star text-success"></i> Nos Valeurs
+                </h2>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <strong>Qualité</strong> : Produits ultra-frais récoltés le jour même
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <strong>Transparence</strong> : Traçabilité complète de nos produits
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <strong>Innovation</strong> : Adoption des meilleures technologies agricoles
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <strong>Respect</strong> : De l'environnement et des consommateurs
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <strong>Local</strong> : Production 100% burkinabè
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6 mb-4 order-md-1">
+                <img src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=600" 
+                     class="img-fluid rounded shadow" 
+                     alt="Nos valeurs">
+            </div>
+        </div>
+    </section>
+
+    <!-- Chiffres Clés -->
+    <section class="bg-success text-white py-5 px-4 rounded mb-5">
+        <div class="text-center mb-4">
+            <h2 class="mb-3">SahelVert en Chiffres</h2>
+        </div>
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <h1 class="display-4 fw-bold">2000+</h1>
+                <p>Clients satisfaits</p>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h1 class="display-4 fw-bold">50+</h1>
+                <p>Variétés de produits</p>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h1 class="display-4 fw-bold">90%</h1>
+                <p>Économie d'eau</p>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h1 class="display-4 fw-bold">24h</h1>
+                <p>Livraison rapide</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="text-center">
+        <h2 class="mb-4">Prêt à découvrir nos produits ?</h2>
+        <a href="/produits" class="btn btn-success btn-lg rounded-pill px-5">
+            <i class="bi bi-shop"></i> Voir nos produits
+        </a>
+    </section>
+</div>
+{% endblock %}
+
