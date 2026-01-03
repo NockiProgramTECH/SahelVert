@@ -14,28 +14,18 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-import environ
-
-# Initialise django-environ
-env = environ.Env(
-    DEBUG=(bool, False),
-)
-# Lis le fichier .env à la racine du projet si présent
-env_file = BASE_DIR / '.env'
-if env_file.exists():
-    environ.Env.read_env(env_file)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-1v*2n(r06on)c8h=j(t*_b%!toou3b@+r28s6ccq*x=xy(o1d5)')
+SECRET_KEY = 'django-insecure-1v*2n(r06on)c8h=j(t*_b%!toou3b@+r28s6ccq*x=xy(o1d5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DEBUG', default=True)
+DEBUG = True
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -85,8 +75,8 @@ WSGI_APPLICATION = 'SahelVert.wsgi.application'
 
 DATABASES = {
     'default': {
-        # Use DATABASE_URL if provided, otherwise fall back to SQLite
-        **env.db(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -125,14 +115,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = env('STATIC_URL', default='static/')
+STATIC_URL = 'static/'
 
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / env('STATIC_ROOT', default='staticfiles')
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+#stockage des fichiers médias
 
-# stockage des fichiers médias
-MEDIA_URL = env('MEDIA_URL', default='/media/')
-MEDIA_ROOT = BASE_DIR / env('MEDIA_ROOT', default='media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 # Redirection après connexion/déconnexion
@@ -140,17 +130,4 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
 
-# Email configuration depuis .env
-EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = env.int('EMAIL_PORT', default=587)
-EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
-
-# Admin contact
-ADMIN_EMAIL = env('ADMIN_EMAIL', default='admin@example.com')
-
-# External services
-STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY', default='')
-STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY', default='')
+# 
