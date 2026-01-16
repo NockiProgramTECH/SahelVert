@@ -1,0 +1,83 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv
+env
+.venv
+env/
+venv/
+ENV/
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Database
+db.sqlite3
+*.db
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Media (optional - uncomment if you want to exclude uploaded files)
+# media/
+# !media/.gitkeep
+
+# Static (optional - will be collected during build)
+# static/
+# !static/.gitkeep
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Misc
+*.egg-info
+dist/
+build/
+*.manifest
+*.spec
+
+# Environment
+.env
+.env.local
+*.local
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Cache directories
+.cache/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+
