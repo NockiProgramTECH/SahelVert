@@ -10,7 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1v*2n(r06on)c8h=j(t*_b%!toou3b@+r28s6ccq*x=xy(o1d5'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-change-in-prod')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 
 # Application definition
@@ -73,12 +78,31 @@ WSGI_APPLICATION = 'SahelVert.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# Configure database dynamically based on environment variables
+DB_ENGINE = os.getenv('DB_ENGINE', 'django.db.backends.sqlite3')
+DB_NAME = os.getenv('DB_NAME', BASE_DIR / 'db.sqlite3')
+DB_USER = os.getenv('DB_USER', '')
+DB_PASSWORD = os.getenv('DB_PASSWORD', '')
+DB_HOST = os.getenv('DB_HOST', '')
+DB_PORT = os.getenv('DB_PORT', '')
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': DB_ENGINE,
+        'NAME': DB_NAME,
     }
 }
+
+# Add extra database settings if PostgreSQL or MySQL is configured
+if DB_ENGINE in ('django.db.backends.postgresql', 'django.db.backends.mysql'):
+    if DB_USER:
+        DATABASES['default']['USER'] = DB_USER
+    if DB_PASSWORD:
+        DATABASES['default']['PASSWORD'] = DB_PASSWORD
+    if DB_HOST:
+        DATABASES['default']['HOST'] = DB_HOST
+    if DB_PORT:
+        DATABASES['default']['PORT'] = DB_PORT
 
 
 # Password validation
@@ -103,7 +127,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr'
 
 TIME_ZONE = 'UTC'
 
@@ -115,19 +139,32 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = os.getenv('STATIC_URL', '/static/')
+STATIC_ROOT = BASE_DIR / os.getenv('STATIC_ROOT', 'staticfiles')
 
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
-#stockage des fichiers médias
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / "media"
+# Stockage des fichiers médias
+MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
+MEDIA_ROOT = BASE_DIR / os.getenv('MEDIA_ROOT', 'media')
 
 
 # Redirection après connexion/déconnexion
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
+
+
+# Email configuration from environment variables
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
+
+
+# Admin email
+ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'admin@example.com')
 
 # 
